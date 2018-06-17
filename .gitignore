@@ -1,0 +1,12 @@
+streams
+vendor
+composer.json
+composer.lock
+figo.sh
+madeline.phar
+madeline.phar.version
+madeline.php
+omg.sh
+session.madeline
+session.madeline.lock
+testmoseca.php
