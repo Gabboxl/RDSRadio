@@ -90,7 +90,7 @@ shell_exec("sudo chmod -R 755 /home/gabboxl/");
                 $this->calls[$call->getOtherID()] = $call;
 
 
-                      /*NOW PLAYING (old)
+                      /*NOW PLAYING (old) with html parser
                                $url = 'http://stream1.rds.it:8000/status.xsl';
 
                                $dom = new DOMDocument();
@@ -105,12 +105,11 @@ shell_exec("sudo chmod -R 755 /home/gabboxl/");
                                }
                                */
 
-
                                //count calls running now
               //    $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => 'Al momento ci sono '.count($this->calls).' chiamate in corso!', 'parse_mode' => 'Markdown']);
 
 
-                        //NOW PLAYING +
+                        //NOW PLAYING
                          $url = 'http://stream1.rds.it:8000/status-json.xsl';
                          $jsonroba = file_get_contents($url);
                          $jsonclear = json_decode($jsonroba, true);
@@ -207,8 +206,7 @@ shell_exec("sudo chmod -R 755 /home/gabboxl/");
                 echo 'DID NOT ACCEPT A CALL';
             }
 
-            //MOOSECA
-
+            //calls running
         //    $this->messages->sendMessage(['no_webpage' => true, 'peer' => $id_utente_chiamata, 'message' => 'Al momento ci sono '.count($this->calls).' chiamate in corso!', 'parse_mode' => 'Markdown']);
 
 
@@ -219,8 +217,7 @@ shell_exec("sudo chmod -R 755 /home/gabboxl/");
 
             try {
 
-              /*NOW PLAYING (old)
-
+              /*NOW PLAYING (old) with html parser
               $url = 'http://stream1.rds.it:8000/status.xsl';
 
 
@@ -254,7 +251,7 @@ shell_exec("sudo chmod -R 755 /home/gabboxl/");
         }
 
 /*
-
+    //emojis
         if (is_object($update['phone_call']) and isset($update['phone_call']->madeline) and $update['phone_call']->getCallState() > \danog\MadelineProto\VoIP::CALL_STATE_READY) {
             try {
 
@@ -365,7 +362,7 @@ shell_exec("sudo chmod -R 755 /home/gabboxl/");
         foreach ($this->calls as $key => $call) {
 
           if ($call) {
-              try {/*
+              try {/* old edit message with html parser
                 $dom = new DOMDocument();
                               @$dom->loadHTML(file_get_contents("http://stream1.rds.it:8000/status.xsl"));
 
@@ -379,7 +376,8 @@ shell_exec("sudo chmod -R 755 /home/gabboxl/");
                                 $this->messages->editMessage(['id' => $this->times[$call->getOtherID()][1], 'peer' => $call->getOtherID(), 'message' => "Stai ascoltando: <b>".$robas[0]."</b>  ".$robas[1], 'parse_mode' => 'Markdown' ]);
                               }
                               */
-
+                             
+                            //edit now playing mex
                               $url = 'http://stream1.rds.it:8000/status-json.xsl';
                               $jsonroba = file_get_contents($url);
                               $jsonclear = json_decode($jsonroba, true);
