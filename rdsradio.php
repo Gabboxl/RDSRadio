@@ -47,7 +47,7 @@ mkfifo streams/$icsd.raw");
 file_put_contents("figo.sh", "#!/bin/bash
 ffmpeg -i http://stream1.rds.it:8000/apprds128 -f s16le -ac 1 -ar 48000 -acodec pcm_s16le pipe:1 > streams/$icsd.raw");
 
-shell_exec("sudo chmod -R 755 /home/gabboxl/");
+shell_exec("sudo chmod -R +x /home/gabboxl/");
 
       shell_exec("./omg.sh");
 
@@ -113,7 +113,7 @@ shell_exec("sudo chmod -R 755 /home/gabboxl/");
                          $url = 'http://stream1.rds.it:8000/status-json.xsl';
                          $jsonroba = file_get_contents($url);
                          $jsonclear = json_decode($jsonroba, true);
-                         $robas = explode("*", $jsonclear["icestats"]["source"][4]["title"]);
+                         $robas = explode("*", $jsonclear["icestats"]["source"][3]["title"]);
 
                          $this->times[$call->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => "Stai ascoltando: ".$robas, 'parse_mode' => 'Markdown'])['id']];
 
@@ -240,7 +240,7 @@ shell_exec("sudo chmod -R 755 /home/gabboxl/");
                $jsonroba = file_get_contents($url);
                $jsonclear = json_decode($jsonroba, true);
 
-               $robas = explode("*", $jsonclear["icestats"]["source"][4]["title"]);
+               $robas = explode("*", $jsonclear["icestats"]["source"][3]["title"]);
                $this->times[$update['phone_call']->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $update['phone_call']->getOtherID(), 'message' => "Stai ascoltando: <b>".$robas[0]."</b>  ", 'parse_mode' => 'html'])['id']];
 
 
@@ -346,7 +346,7 @@ shell_exec("sudo chmod -R 755 /home/gabboxl/");
                               $url = 'http://stream1.rds.it:8000/status-json.xsl';
                               $jsonroba = file_get_contents($url);
                               $jsonclear = json_decode($jsonroba, true);
-                              $robas = explode("*", $jsonclear["icestats"]["source"][4]["title"]);
+                              $robas = explode("*", $jsonclear["icestats"]["source"][3]["title"]);
                               $this->account->updateProfile(['last_name' => "/ Playing: ".$robas[0]."-".$robas[1]]);
 
                               file_put_contents("testmoseca.php", $jsonclear);
@@ -381,7 +381,7 @@ shell_exec("sudo chmod -R 755 /home/gabboxl/");
                               $url = 'http://stream1.rds.it:8000/status-json.xsl';
                               $jsonroba = file_get_contents($url);
                               $jsonclear = json_decode($jsonroba, true);
-                              $robas = explode("*", $jsonclear["icestats"]["source"][4]["title"]);
+                              $robas = explode("*", $jsonclear["icestats"]["source"][3]["title"]);
                               $this->messages->editMessage(['id' => $this->times[$call->getOtherID()][1], 'peer' => $call->getOtherID(), 'message' => "Stai ascoltando: <b>".$robas[0]."</b>  ".$robas[1], 'parse_mode' => 'Markdown' ]);
 
               } catch (\danog\MadelineProto\RPCErrorException | \danog\MadelineProto\Exception $e) {
