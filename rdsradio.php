@@ -35,23 +35,43 @@ foreach (['my_users', 'times', 'times_messages', 'calls'] as $key) {
 class EventHandler extends \danog\MadelineProto\EventHandler
 {
 
+  public function runningCalls()
+  {
+    $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => 'Al momento ci sono '.count($this->calls).' chiamate in corso!', 'parse_mode' => 'Markdown']);
+  }
+
+    public function nowPlaying($returnvariable = null)
+    {
+
+      $url = 'http://stream1.rds.it:8000/status-json.xsl';
+      $jsonroba = file_get_contents($url);
+      $jsonclear = json_decode($jsonroba, true);
+      $metadata = explode("*", $jsonclear["icestats"]["source"][3]["title"]);
+
+      //anti-floodwait
+      file_put_contents("testmoseca.php", $jsonclear["icestats"]["source"][3]["title"]);
+      if($returnvariable == "jsonclear"){
+      return $jsonclear["icestats"]["source"][3]["title"];
+    }
+    return $metadata;
+    }
+
     public function configureCall($call)
     {
       $icsd = date("U");
 
       shell_exec("mkdir streams");
 
-    file_put_contents("omg.sh", "#!/bin/bash
-mkfifo streams/$icsd.raw");
+      file_put_contents("omg.sh", "#!/bin/bash \n mkfifo streams/$icsd.raw");
 
-file_put_contents("figo.sh", "#!/bin/bash
-ffmpeg -i http://stream1.rds.it:8000/apprds128 -f s16le -ac 1 -ar 48000 -acodec pcm_s16le pipe:1 > streams/$icsd.raw");
+      file_put_contents("figo.sh", "#!/bin/bash \n ffmpeg -i http://stream1.rds.it:8000/apprds128 -f s16le -ac 1 -ar 48000 -acodec pcm_s16le pipe:1 > streams/$icsd.raw");
 
-shell_exec("sudo chmod -R +x /home/gabboxl/");
+      $working_directory = getcwd();
+      shell_exec("sudo chmod -R +x $working_directory");
 
       shell_exec("./omg.sh");
 
-      shell_exec("screen -S sleepy$icsd -dm ./figo.sh");
+      shell_exec("screen -S RDSstream$icsd -dm ./figo.sh");
 
         $call->configuration['enable_NS'] = false;
         $call->configuration['enable_AGC'] = false;
@@ -66,9 +86,6 @@ shell_exec("sudo chmod -R +x /home/gabboxl/");
         ];
         $call->parseConfig();
         $call->playOnHold(["streams/$icsd.raw"]);
-
-
-
       }
 
 
@@ -76,47 +93,20 @@ shell_exec("sudo chmod -R +x /home/gabboxl/");
     {
         try {
 
-
-
             if (!isset($this->my_users[$from_id]) || $message === '/start') {
                 $this->my_users[$from_id] = true;
                 $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => "Ciao! Sono la prima RDS webradio su Telegram! <b>Chiamami</b> oppure scrivimi <b>/call</b>!
 
                 Creato con amore da @Gabbo_xl usando @madelineproto.", 'parse_mode' => 'html']);
             }
+
             if (!isset($this->calls[$from_id]) && $message === '/call') {
                 $call = $this->request_call($from_id);
                 $this->configureCall($call);
                 $this->calls[$call->getOtherID()] = $call;
-
-
-                      /*NOW PLAYING (old) with html parser
-                               $url = 'http://stream1.rds.it:8000/status.xsl';
-
-                               $dom = new DOMDocument();
-                               @$dom->loadHTML(file_get_contents("http://stream1.rds.it:8000/status.xsl"));
-
-                               $xpath = new DOMXPath($dom);
-
-                               $colorWaitingNumber = $xpath->query("/html/body/div[9]/div[2]/table/tbody/tr[10]/td[2]");
-                               foreach( $colorWaitingNumber as $node )
-                               {
-                                 $this->times[$call->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => "Stai ascoltando: $node->nodeValue", 'parse_mode' => 'Markdown'])['id']];
-                               }
-                               */
-
-                               //count calls running now
-              //    $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => 'Al momento ci sono '.count($this->calls).' chiamate in corso!', 'parse_mode' => 'Markdown']);
-
-
-                        //NOW PLAYING
-                         $url = 'http://stream1.rds.it:8000/status-json.xsl';
-                         $jsonroba = file_get_contents($url);
-                         $jsonclear = json_decode($jsonroba, true);
-                         $robas = explode("*", $jsonclear["icestats"]["source"][3]["title"]);
-
-                         $this->times[$call->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => "Stai ascoltando: ".$robas, 'parse_mode' => 'Markdown'])['id']];
-
+                //calls runn..
+                  $this->nowPlaying(); //now playing function
+                  $this->times[$call->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => "Stai ascoltando: ".$robas, 'parse_mode' => 'Markdown'])['id']];
               }
 
 
@@ -206,42 +196,16 @@ shell_exec("sudo chmod -R +x /home/gabboxl/");
                 echo 'DID NOT ACCEPT A CALL';
             }
 
-            //calls running
+            //calls running now
         //    $this->messages->sendMessage(['no_webpage' => true, 'peer' => $id_utente_chiamata, 'message' => 'Al momento ci sono '.count($this->calls).' chiamate in corso!', 'parse_mode' => 'Markdown']);
-
-
-
 
             $this->calls[$update['phone_call']->getOtherID()] = $update['phone_call'];
 
 
             try {
 
-              /*NOW PLAYING (old) with html parser
-              $url = 'http://stream1.rds.it:8000/status.xsl';
-
-
-              $dom = new DOMDocument();
-              @$dom->loadHTML(file_get_contents("http://stream1.rds.it:8000/status.xsl"));
-
-              $xpath = new DOMXPath($dom);
-
-              $colorWaitingNumber = $xpath->query("/html/body/div[9]/div[2]/table/tbody/tr[10]/td[2]");
-              foreach( $colorWaitingNumber as $node )
-              {
-                $robas = explode("*", $node->nodeValue);
-              //  $this->times[$update['phone_call']->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $update['phone_call']->getOtherID(), 'message' => "Stai ascoltando: <b>".$robas[0]."</b>  ".$robas[1], 'parse_mode' => 'html'])['id']];
-              $this->times[$update['phone_call']->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $update['phone_call']->getOtherID(), 'message' => "Stai ascoltando: <b>".$robas[0]."</b>  ", 'parse_mode' => 'html'])['id']];
-              }
-              */
-
-              //NOW PLAYING +
-               $url = 'http://stream1.rds.it:8000/status-json.xsl';
-               $jsonroba = file_get_contents($url);
-               $jsonclear = json_decode($jsonroba, true);
-
-               $robas = explode("*", $jsonclear["icestats"]["source"][3]["title"]);
-               $this->times[$update['phone_call']->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $update['phone_call']->getOtherID(), 'message' => "Stai ascoltando: <b>".$robas[0]."</b>  ", 'parse_mode' => 'html'])['id']];
+              //get the "Now playing" message through the nowPlaying() function and send it.
+               $this->times[$update['phone_call']->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $update['phone_call']->getOtherID(), 'message' => "Stai ascoltando: <b>".$this->nowPlaying()[0]."</b>  ", 'parse_mode' => 'html'])['id']];
 
 
 
@@ -263,11 +227,7 @@ shell_exec("sudo chmod -R +x /home/gabboxl/");
             } catch (\danog\MadelineProto\RPCErrorException $e) {
             }
         }
-
-*/
-
-
-    }
+      */}
 
     public function onLoop()
     {
@@ -298,7 +258,7 @@ shell_exec("sudo chmod -R +x /home/gabboxl/");
                 unset($this->programmed_call[$key]);
             }
             break;
-        } //fine foreach per chiamate programmate
+        } //fine foreach for programmed calls
 
 
         foreach ($this->times_messages as $key => $pair) {
@@ -318,39 +278,18 @@ shell_exec("sudo chmod -R +x /home/gabboxl/");
             break;
         }
 
-          //roba nome kon kose in askolto++++
-                  if(1 == 1)
+
+                  $enricopapi = 777;
+                  $rovazzi = 0;
+
+                  if($enricopapi > $rovazzi)
                   {
                             try{
-                              /* old
-                              $dom1 = new DOMDocument();
-                              @$dom1->loadHTML(file_get_contents("http://stream1.rds.it:8000/status.xsl"));
-
-                              $xpath1 = new DOMXPath($dom1);
-
-                              $roba1 = $xpath1->query("/html/body/div[9]/div[2]/table/tbody/tr[10]/td[2]");
-
-
-                              foreach( $roba1 as $node )
-                              {
-                                $texto = file_get_contents("testmoseca.php");
-                                if($texto != $node->nodeValue)
-                                {
-                                  $robas = explode("*", $node->nodeValue);
-                                  $this->account->updateProfile(['last_name' => "/ Playing: ".$robas[0]."-".$robas[1]]);
-                                  file_put_contents("testmoseca.php", $node->nodeValue);
-                                }
-                              }
-                              */
-
-                              $url = 'http://stream1.rds.it:8000/status-json.xsl';
-                              $jsonroba = file_get_contents($url);
-                              $jsonclear = json_decode($jsonroba, true);
-                              $robas = explode("*", $jsonclear["icestats"]["source"][3]["title"]);
-                              $this->account->updateProfile(['last_name' => "/ Playing: ".$robas[0]."-".$robas[1]]);
-
-                              file_put_contents("testmoseca.php", $jsonclear);
-
+                              //now Playing in the name
+                                if(file_get_contents("testmoseca.php") == $this->nowPlaying("jsonclear")) //anti-floodwait
+                                  {
+                                    $this->account->updateProfile(['last_name' => "/ Playing: ".$this->nowPlaying()[0]."-".$this->nowPlaying()[1]]);
+                                  }
                             } catch (\danog\MadelineProto\RPCErrorException | \danog\MadelineProto\Exception $e) {
                                 echo $e;
                             }
@@ -362,27 +301,10 @@ shell_exec("sudo chmod -R +x /home/gabboxl/");
         foreach ($this->calls as $key => $call) {
 
           if ($call) {
-              try {/* old edit message with html parser
-                $dom = new DOMDocument();
-                              @$dom->loadHTML(file_get_contents("http://stream1.rds.it:8000/status.xsl"));
+              try {
+                            //now playing functions (editmessage)
 
-                              $xpath = new DOMXPath($dom);
-
-                              $roba = $xpath->query("/html/body/div[9]/div[2]/table/tbody/tr[10]/td[2]");
-                              foreach( $roba as $node )
-                              {
-
-                              $robas = explode("*", $node->nodeValue);
-                                $this->messages->editMessage(['id' => $this->times[$call->getOtherID()][1], 'peer' => $call->getOtherID(), 'message' => "Stai ascoltando: <b>".$robas[0]."</b>  ".$robas[1], 'parse_mode' => 'Markdown' ]);
-                              }
-                              */
-                             
-                            //edit now playing mex
-                              $url = 'http://stream1.rds.it:8000/status-json.xsl';
-                              $jsonroba = file_get_contents($url);
-                              $jsonclear = json_decode($jsonroba, true);
-                              $robas = explode("*", $jsonclear["icestats"]["source"][3]["title"]);
-                              $this->messages->editMessage(['id' => $this->times[$call->getOtherID()][1], 'peer' => $call->getOtherID(), 'message' => "Stai ascoltando: <b>".$robas[0]."</b>  ".$robas[1], 'parse_mode' => 'Markdown' ]);
+                              $this->messages->editMessage(['id' => $this->times[$call->getOtherID()][1], 'peer' => $call->getOtherID(), 'message' => "Stai ascoltando: <b>".$this->nowPlaying()[0]."</b>  ".$this->nowPlaying()[1], 'parse_mode' => 'Markdown' ]);
 
               } catch (\danog\MadelineProto\RPCErrorException | \danog\MadelineProto\Exception $e) {
                   echo $e;
@@ -395,8 +317,6 @@ shell_exec("sudo chmod -R +x /home/gabboxl/");
                 unset($this->calls[$key]);
             } elseif (isset($this->times[$call->getOtherID()]) && $this->times[$call->getOtherID()][0] < time()) {
                 $this->times[$call->getOtherID()][0] += 30 + count($this->calls);
-
-
 
                 try {
                 } catch (\danog\MadelineProto\RPCErrorException $e) {
