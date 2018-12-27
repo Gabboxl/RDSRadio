@@ -8,3 +8,4 @@ To get started, run *rdsradio.php* (recommended) or install MadelineProto from h
 # Requirements
 
 - ffmpeg
+- PHP (7.0, 7.1, 7.2 ,7.3)
