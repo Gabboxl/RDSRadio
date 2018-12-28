@@ -43,16 +43,16 @@ class EventHandler extends \danog\MadelineProto\EventHandler
     public function nowPlaying($returnvariable = null)
     {
 
-      $url = 'http://stream1.rds.it:8000/status-json.xsl';
+      $url = 'https://icstream.rds.radio/status-json.xsl';  //vekkio http://stream1.rds.it:8000/status-json.xsl
       $jsonroba = file_get_contents($url);
       $jsonclear = json_decode($jsonroba, true);
-      $metadata = explode("*", $jsonclear["icestats"]["source"][3]["title"]);
+      $metadata = explode("*", $jsonclear["icestats"]["source"][15]["title"]);
 
       //anti-floodwait
-      file_put_contents("testmoseca.php", $jsonclear["icestats"]["source"][3]["title"]);
-      if($returnvariable == "jsonclear"){
-      return $jsonclear["icestats"]["source"][3]["title"];
-    }
+      file_put_contents("testmoseca.php", $jsonclear["icestats"]["source"][15]["title"]);
+		if($returnvariable == "jsonclear"){
+			return $jsonclear["icestats"]["source"][15]["title"];
+		}
     return $metadata;
     }
 
@@ -205,7 +205,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
             try {
 
               //get the "Now playing" message through the nowPlaying() function and send it.
-               $this->times[$update['phone_call']->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $update['phone_call']->getOtherID(), 'message' => "Stai ascoltando: <b>".$this->nowPlaying()[0]."</b>  ", 'parse_mode' => 'html'])['id']];
+               $this->times[$update['phone_call']->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $update['phone_call']->getOtherID(), 'message' => "Se leggi wuesto hai una çaçata connexxione (da modificarz)", 'parse_mode' => 'html'])['id']];
 
 
 
@@ -288,7 +288,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
                               //now Playing in the name
                                 if(file_get_contents("testmoseca.php") == $this->nowPlaying("jsonclear")) //anti-floodwait
                                   {
-                                    $this->account->updateProfile(['last_name' => "/ Playing: ".$this->nowPlaying()[0]."-".$this->nowPlaying()[1]]);
+                                    $this->account->updateProfile(['last_name' => "/ Playing: ".$this->nowPlaying()[1]."-".$this->nowPlaying()[2]]);
                                   }
                             } catch (\danog\MadelineProto\RPCErrorException | \danog\MadelineProto\Exception $e) {
                                 echo $e;
@@ -304,7 +304,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
               try {
                             //now playing functions (editmessage)
 
-                              $this->messages->editMessage(['id' => $this->times[$call->getOtherID()][1], 'peer' => $call->getOtherID(), 'message' => "Stai ascoltando: <b>".$this->nowPlaying()[0]."</b>  ".$this->nowPlaying()[1], 'parse_mode' => 'Markdown' ]);
+                              $this->messages->editMessage(['id' => $this->times[$call->getOtherID()][1], 'peer' => $call->getOtherID(), 'message' => "Stai ascoltando: <b>".$this->nowPlaying()[1]."</b>  ".$this->nowPlaying()[2]."<br> Tipo: <i>".$this->nowPlaying()[0]."</i>", 'parse_mode' => 'Markdown' ]);
 
               } catch (\danog\MadelineProto\RPCErrorException | \danog\MadelineProto\Exception $e) {
                   echo $e;
