@@ -205,8 +205,8 @@ class EventHandler extends \danog\MadelineProto\EventHandler
             try {
 
               //get the "Now playing" message through the nowPlaying() function and send it.
-               $this->times[$update['phone_call']->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $update['phone_call']->getOtherID(), 'message' => "Se leggi wuesto hai una çaçata connexxione (da modificarz)", 'parse_mode' => 'html'])['id']];
-
+               $this->times[$update['phone_call']->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $update['phone_call']->getOtherID(), 'message' => "Se leggi wuesto hai una çaçata connexxione (<i>da modificarz</i>)", 'parse_mode' => 'html'])['id']];
+				//se da errore DOM html parser ecc.. è pk nel mex sta cercando una formattazione html ma non c'è e windi crasha tutto X.X
 
 
 
