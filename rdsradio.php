@@ -278,7 +278,8 @@ class EventHandler extends \danog\MadelineProto\EventHandler
                                     $this->account->updateProfile(['last_name' => '/ Playing: '.$this->nowPlaying()[1].'-'.$this->nowPlaying()[2]]);
                                 }
             } catch (\danog\MadelineProto\RPCErrorException | \danog\MadelineProto\Exception $e) {
-                echo $e;
+               // echo $e;
+			   echo "scaz floodwait x cambio nome . . .   sucsa \n";
             }
         }
 
