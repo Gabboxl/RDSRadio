@@ -103,7 +103,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
                 $this->calls[$call->getOtherID()] = $call;
                 //calls runn..
                   $this->nowPlaying(); //now playing function
-                  $this->times[$call->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'Stai ascoltando: '.$robas, 'parse_mode' => 'Markdown'])['id']];
+                  $this->times[$call->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'Stai ascoltando: ', 'parse_mode' => 'Markdown'])['id']];
             }
 
             /*    if (strpos($message, '/program') === 0) {
@@ -196,11 +196,10 @@ class EventHandler extends \danog\MadelineProto\EventHandler
             $this->calls[$update['phone_call']->getOtherID()] = $update['phone_call'];
 
             try {
-
-              //get the "Now playing" message through the nowPlaying() function and send it.
-                $this->times[$update['phone_call']->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $update['phone_call']->getOtherID(), 'message' => 'Se leggi wuesto hai una çaçata connexxione (<i>da modificarz</i>)', 'parse_mode' => 'html'])['id']];
-                //se da errore DOM html parser ecc.. è pk nel mex sta cercando una formattazione html ma non c'è e windi crasha tutto X.X
+                $this->times[$update['phone_call']->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $update['phone_call']->getOtherID(), 'message' => 'Se leggi wuesto hai una cacata connexxione (da modificarz)'])['id']];
+				//dava errore DOM html pars xk cierano le C francaise .,,. mannagg a i frnacais
             } catch (\danog\MadelineProto\RPCErrorException $e) {
+				echo $e;
             }
         }
 
