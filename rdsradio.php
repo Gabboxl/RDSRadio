@@ -197,9 +197,9 @@ class EventHandler extends \danog\MadelineProto\EventHandler
 
             try {
                 $this->times[$update['phone_call']->getOtherID()] = [time(), $this->messages->sendMessage(['peer' => $update['phone_call']->getOtherID(), 'message' => 'Se leggi wuesto hai una cacata connexxione (da modificarz)'])['id']];
-				//dava errore DOM html pars xk cierano le C francaise .,,. mannagg a i frnacais
+                //dava errore DOM html pars xk cierano le C francaise .,,. mannagg a i frnacais
             } catch (\danog\MadelineProto\RPCErrorException $e) {
-				echo $e;
+                echo $e;
             }
         }
 
@@ -207,12 +207,12 @@ class EventHandler extends \danog\MadelineProto\EventHandler
             //emojis
                 if (is_object($update['phone_call']) and isset($update['phone_call']->madeline) and $update['phone_call']->getCallState() > \danog\MadelineProto\VoIP::CALL_STATE_READY) {
                     try {
-        
+
                       $id_utente_chiamata = $update['phone_call']->getOtherID();
                       $emojis = $update['phone_call']->getVisualization();
                       $this->messages->sendMessage(['no_webpage' => true, 'peer' => $id_utente_chiamata, 'message' => 'Emojis: '.$emojis[0].$emojis[1].$emojis[2].$emojis[3] , 'parse_mode' => 'Markdown']);
-        
-        
+
+
                     } catch (\danog\MadelineProto\RPCErrorException $e) {
                     }
                 }
@@ -277,8 +277,8 @@ class EventHandler extends \danog\MadelineProto\EventHandler
                                     $this->account->updateProfile(['last_name' => '/ Playing: '.$this->nowPlaying()[1].'-'.$this->nowPlaying()[2]]);
                                 }
             } catch (\danog\MadelineProto\RPCErrorException | \danog\MadelineProto\Exception $e) {
-               // echo $e;
-			   echo "scaz floodwait x cambio nome . . .   sucsa \n";
+                // echo $e;
+                echo "scaz floodwait x cambio nome . . .   sucsa \n";
             }
         }
 
