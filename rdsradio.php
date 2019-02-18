@@ -236,6 +236,14 @@ class EventHandler extends \danog\MadelineProto\EventHandler
         \danog\MadelineProto\Logger::log(count($this->calls).' calls running!');
         foreach ($this->calls as $key => $call) {
 
+          if ($call->getState() === \danog\MadelineProto\VoIP::STATE_WAIT_INIT_ACK) {
+                try {
+                    $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'Emojis: '.implode('', $call->getVisualization())]);
+                } catch (\danog\MadelineProto\RPCErrorException $e) {
+                  echo $e;
+                }
+              }
+
             if ($call->getCallState() === \danog\MadelineProto\VoIP::CALL_STATE_ENDED) {
                 try {
                     if (isset($this->times[$call->getOtherID()][1])) {
