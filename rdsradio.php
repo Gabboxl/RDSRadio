@@ -17,42 +17,42 @@ echo 'Deserializing MadelineProto from session.madeline...'.PHP_EOL;
 
 class EventHandler extends \danog\MadelineProto\EventHandler
 {
-  public function nowPlaying($returnvariable = null)
-  {
-      $url = 'https://icstream.rds.radio/status-json.xsl';  //vekkio http://stream1.rds.it:8000/status-json.xsl
-      $jsonroba = file_get_contents($url);
-      $jsonclear = json_decode($jsonroba, true);
-      $metadata = explode('*', $jsonclear['icestats']['source'][15]['title']);
+    public function nowPlaying($returnvariable = null)
+    {
+        $url = 'https://icstream.rds.radio/status-json.xsl';  //vekkio http://stream1.rds.it:8000/status-json.xsl
+        $jsonroba = file_get_contents($url);
+        $jsonclear = json_decode($jsonroba, true);
+        $metadata = explode('*', $jsonclear['icestats']['source'][15]['title']);
 
-      //anti-floodwait
-      file_put_contents('testmoseca.php', $jsonclear['icestats']['source'][15]['title']);
-      if ($returnvariable == 'jsonclear') {
-          return $jsonclear['icestats']['source'][15]['title'];
-      }
+        //anti-floodwait
+        file_put_contents('testmoseca.php', $jsonclear['icestats']['source'][15]['title']);
+        if ($returnvariable == 'jsonclear') {
+            return $jsonclear['icestats']['source'][15]['title'];
+        }
 
-      return $metadata;
-  }
+        return $metadata;
+    }
 
     public function configureCall($call)
     {
-      $icsd = date('U');
+        $icsd = date('U');
 
-      shell_exec('mkdir streams');
+        shell_exec('mkdir streams');
 
-      file_put_contents('omg.sh', "#!/bin/bash \n mkfifo streams/$icsd.raw");
+        file_put_contents('omg.sh', "#!/bin/bash \n mkfifo streams/$icsd.raw");
 
-      file_put_contents('figo.sh', '#!/bin/bash'." \n".'ffmpeg -i "http://stream1.rds.it:8000/apprds128" -vn -f s16le -ac 1 -ar 48000 -acodec pcm_s16le pipe:1 > streams/'."$icsd.raw"); //https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=2606803
+        file_put_contents('figo.sh', '#!/bin/bash'." \n".'ffmpeg -i "http://stream1.rds.it:8000/apprds128" -vn -f s16le -ac 1 -ar 48000 -acodec pcm_s16le pipe:1 > streams/'."$icsd.raw"); //https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=2606803
 
-      shell_exec("sudo chmod -R 0777 omg.sh figo.sh");
+        shell_exec('sudo chmod -R 0777 omg.sh figo.sh');
 
-      shell_exec('./omg.sh');
+        shell_exec('./omg.sh');
 
-      shell_exec("screen -S RDSstream$icsd -dm ./figo.sh");
+        shell_exec("screen -S RDSstream$icsd -dm ./figo.sh");
 
-      $call->configuration['enable_NS'] = false;
-      $call->configuration['enable_AGC'] = false;
-      $call->configuration['enable_AEC'] = false;
-      $call->configuration['shared_config'] = [
+        $call->configuration['enable_NS'] = false;
+        $call->configuration['enable_AGC'] = false;
+        $call->configuration['enable_AEC'] = false;
+        $call->configuration['shared_config'] = [
           'audio_init_bitrate'      => 100 * 1000,
           'audio_max_bitrate'       => 100 * 1000,
           'audio_min_bitrate'       => 10 * 1000,
@@ -60,8 +60,8 @@ class EventHandler extends \danog\MadelineProto\EventHandler
           //'audio_bitrate_step_decr' => 0,
           //'audio_bitrate_step_incr' => 2000,
       ];
-      $call->parseConfig();
-      $call->playOnHold(["streams/$icsd.raw"]);
+        $call->parseConfig();
+        $call->playOnHold(["streams/$icsd.raw"]);
     }
 
     public function handleMessage($chat_id, $from_id, $message)
@@ -69,7 +69,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
         try {
             if (!isset($this->my_users[$from_id]) || $message === '/start') {
                 $this->my_users[$from_id] = true;
-                $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => "Ciao! Sono la prima RDS webradio su Telegram! <b>Chiamami</b> oppure scrivimi <b>/call</b>! \n
+                $this->messages->sendMessage(['no_webpage'                             => true, 'peer' => $chat_id, 'message' => "Ciao! Sono la prima RDS webradio su Telegram! <b>Chiamami</b> oppure scrivimi <b>/call</b>! \n
                 \n Creato con amore da @Gabbo_xl usando @madelineproto.", 'parse_mode' => 'html']);
             }
             if (!isset($this->calls[$from_id]) && $message === '/call') {
@@ -100,7 +100,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
                 }
                 $this->messages->sendMessage(['peer' => $chat_id, 'message' => (string) $e]);
             } catch (\danog\MadelineProto\RPCErrorException $e) {
-              echo $e;
+                echo $e;
             }
             echo $e;
         } catch (\danog\MadelineProto\Exception $e) {
@@ -190,7 +190,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
                             }
                             $this->messages->sendMessage(['peer' => $user, 'message' => (string) $e]);
                         } catch (\danog\MadelineProto\RPCErrorException $e) {
-                          echo $e;
+                            echo $e;
                         }
                         echo $e;
                     }
@@ -217,7 +217,6 @@ class EventHandler extends \danog\MadelineProto\EventHandler
             break;
         }
 
-
         $enricopapi = 777;
         $rovazzi = 0;
 
@@ -235,18 +234,18 @@ class EventHandler extends \danog\MadelineProto\EventHandler
 
         \danog\MadelineProto\Logger::log(count($this->calls).' calls running!');
         foreach ($this->calls as $key => $call) {
-          if ($call->getState() === \danog\MadelineProto\VoIP::STATE_WAIT_INIT_ACK) {
+            if ($call->getState() === \danog\MadelineProto\VoIP::STATE_WAIT_INIT_ACK) {
                 try {
                     $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'Emojis: '.implode('', $call->getVisualization())]);
                 } catch (\danog\MadelineProto\RPCErrorException $e) {
-                  echo $e;
+                    echo $e;
                 }
-              }
+            }
 
             if ($call->getCallState() === \danog\MadelineProto\VoIP::CALL_STATE_ENDED) {
                 try {
                     if (isset($this->times[$call->getOtherID()][1])) {
-                      $this->messages->sendMessage(['no_webpage' => true, 'peer' => $call->getOtherID(), 'message' => 'grz x averci scelto', 'parse_mode' => 'html']);
+                        $this->messages->sendMessage(['no_webpage' => true, 'peer' => $call->getOtherID(), 'message' => 'grz x averci scelto', 'parse_mode' => 'html']);
                     }
                 } catch (\danog\MadelineProto\Exception $e) {
                     echo $e;
