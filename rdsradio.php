@@ -228,7 +228,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
                                 }
             } catch (\danog\MadelineProto\RPCErrorException | \danog\MadelineProto\Exception $e) {
                 // echo $e;
-                echo "scaz floodwait x cambio nome . . .   sucsa \n";
+                echo "scz floodwait x cambio nome . . .   sucsa \n";
             }
         }
 
