@@ -251,8 +251,6 @@ class EventHandler extends \danog\MadelineProto\EventHandler
                     echo $e;
                 } catch (\danog\MadelineProto\RPCErrorException $e) {
                     echo $e;
-                } catch (\danog\MadelineProto\Exception $e) {
-                    echo $e;
                 }
                 @unlink('/tmp/logs'.$call->getCallID()['id'].'.log');
                 @unlink('/tmp/stats'.$call->getCallID()['id'].'.txt');
