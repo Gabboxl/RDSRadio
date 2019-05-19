@@ -267,6 +267,9 @@ class EventHandler extends \danog\MadelineProto\EventHandler
         }
     }
 }
+
+if (!class_exists('\\danog\\MadelineProto\\VoIPServerConfig')) die("Installa l'estensione libtgvoip: https://voip.madelineproto.xyz".PHP_EOL);
+
 $MadelineProto = new \danog\MadelineProto\API('session.madeline', ['secret_chats' => ['accept_chats' => false]]);
 $MadelineProto->start();
 
