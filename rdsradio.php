@@ -52,6 +52,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
         $call->configuration['enable_NS'] = false;
         $call->configuration['enable_AGC'] = false;
         $call->configuration['enable_AEC'] = false;
+        $call->configuration['log_file_path'] = '/tmp/logs'.$call->getCallID()['id'].'.log'; // Default is /dev/null
         $call->configuration['shared_config'] = [
           'audio_init_bitrate'      => 100 * 1000,
           'audio_max_bitrate'       => 100 * 1000,
@@ -163,7 +164,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
 
     public function onAny($update)
     {
-        \danog\MadelineProto\Logger::log($update);
+      //  \danog\MadelineProto\Logger::log($update);
     }
 
     public function onLoop()
