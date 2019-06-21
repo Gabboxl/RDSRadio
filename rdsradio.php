@@ -53,14 +53,6 @@ class EventHandler extends \danog\MadelineProto\EventHandler
         $call->configuration['enable_AGC'] = false;
         $call->configuration['enable_AEC'] = false;
         $call->configuration['log_file_path'] = '/tmp/logs'.$call->getCallID()['id'].'.log'; // Default is /dev/null
-        $call->configuration['shared_config'] = [
-          'audio_init_bitrate'      => 100 * 1000,
-          'audio_max_bitrate'       => 100 * 1000,
-          'audio_min_bitrate'       => 10 * 1000,
-          'audio_congestion_window' => 4 * 1024,
-          //'audio_bitrate_step_decr' => 0,
-          //'audio_bitrate_step_incr' => 2000,
-      ];
         $call->parseConfig();
         $call->playOnHold(["streams/$icsd.raw"]);
     }
@@ -114,7 +106,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
         if ($update['message']['out'] || $update['message']['to_id']['_'] !== 'peerUser' || !isset($update['message']['from_id'])) {
             return;
         }
-        //\danog\MadelineProto\Logger::log($update);
+          \danog\MadelineProto\Logger::log($update);
         $chat_id = $from_id = $this->get_info($update)['bot_api_id'];
         $message = isset($update['message']['message']) ? $update['message']['message'] : '';
         $this->handleMessage($chat_id, $from_id, $message);
@@ -164,7 +156,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
 
     public function onAny($update)
     {
-      //  \danog\MadelineProto\Logger::log($update);
+        \danog\MadelineProto\Logger::log($update);
     }
 
     public function onLoop()
@@ -269,9 +261,22 @@ class EventHandler extends \danog\MadelineProto\EventHandler
     }
 }
 
-if (!class_exists('\\danog\\MadelineProto\\VoIPServerConfig')) die("Installa l'estensione libtgvoip: https://voip.madelineproto.xyz".PHP_EOL);
+if (!class_exists('\\danog\\MadelineProto\\VoIPServerConfig')){
+   die("Installa l'estensione libtgvoip: https://voip.madelineproto.xyz".PHP_EOL);
+}
 
-$MadelineProto = new \danog\MadelineProto\API('session.madeline', ['secret_chats' => ['accept_chats' => false]]);
+\danog\MadelineProto\VoIPServerConfig::update(
+    [
+        'audio_init_bitrate'      => 100 * 1000,
+        'audio_max_bitrate'       => 100 * 1000,
+        'audio_min_bitrate'       => 10 * 1000,
+        'audio_congestion_window' => 4 * 1024,
+        //'audio_bitrate_step_decr' => 0,
+        //'audio_bitrate_step_incr' => 2000,
+    ]
+);
+
+$MadelineProto = new \danog\MadelineProto\API('session.madeline', ['secret_chats' => ['accept_chats' => false], 'logger' => ['logger' => 3, 'logger_level' => 5, 'logger_param' => getcwd().'/MadelineProto.log']]);
 $MadelineProto->start();
 
 if (!isset($MadelineProto->programmed_call)) {
