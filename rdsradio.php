@@ -20,7 +20,7 @@ echo 'Deserializing MadelineProto from session.madeline...'.PHP_EOL;
 use danog\MadelineProto\Loop\Impl\ResumableSignalLoop;
 class MessageLoop extends ResumableSignalLoop
 {
-    const INTERVAL = 10;
+    const INTERVAL = 1;
     private $timeout;
     private $call;
     public function __construct($API, $call, $timeout = self::INTERVAL)
@@ -43,7 +43,10 @@ class MessageLoop extends ResumableSignalLoop
             }
 
             try {
+              if (file_get_contents('testmoseca.php') == $this->nowPlaying('jsonclear')) { //anti-floodwait
+
                 yield $MadelineProto->messages->editMessage(['id' => $this->call->mId, 'peer' => $this->call->getOtherID(), 'message' => 'Stai ascoltando: <b>'.$sucsa->nowPlaying()[1].'</b>  '.$sucsa->nowPlaying()[2].'<br> Tipo: <i>'.$sucsa->nowPlaying()[0].'</i>', 'parse_mode' => 'html']);
+              }
             } catch (\danog\MadelineProto\RPCErrorException $e) {
                 $MadelineProto->logger($e);
             }
@@ -158,13 +161,14 @@ class EventHandler extends \danog\MadelineProto\EventHandler
                 $this->logger('DID NOT ACCEPT A CALL');
             }
 
-            $b00l = true;
-            while($b00l){
+            $b00l = 0;
+            while($b00l < 5){
               try {
                 yield $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'Emojis: '.implode('', $call->getVisualization())]);
-                $b00l = false;
+                $b00l = 5;
             } catch (\danog\MadelineProto\Exception $e) {
                 $this->logger($e);
+                $b00l++;
             }
           }
         }
