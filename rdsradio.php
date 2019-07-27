@@ -43,9 +43,11 @@ class MessageLoop extends ResumableSignalLoop
             }
 
             try {
-              if (file_get_contents('testmoseca.php') == $sucsa->nowPlaying('jsonclear')) { //anti-floodwait
+              if (file_get_contents('testmoseca.php') != $sucsa->nowPlaying('jsonclear')) { //anti-floodwait
 
                 yield $MadelineProto->messages->editMessage(['id' => $this->call->mId, 'peer' => $this->call->getOtherID(), 'message' => 'Stai ascoltando: <b>'.$sucsa->nowPlaying()[1].'</b>  '.$sucsa->nowPlaying()[2].'<br> Tipo: <i>'.$sucsa->nowPlaying()[0].'</i>', 'parse_mode' => 'html']);
+                //anti-floodwait
+                file_put_contents('testmoseca.php', $sucsa->nowPlaying('jsonclear'));
               }
             } catch (\danog\MadelineProto\Exception | \danog\MadelineProto\RPCErrorException $e ) {
                 $MadelineProto->logger($e);
@@ -124,8 +126,6 @@ class EventHandler extends \danog\MadelineProto\EventHandler
         $jsonclear = json_decode($jsonroba, true);
         $metadata = explode('*', $jsonclear['icestats']['source'][16]['title']);
 
-        //anti-floodwait
-        file_put_contents('testmoseca.php', $jsonclear['icestats']['source'][16]['title']);
         if ($returnvariable == 'jsonclear') {
             return $jsonclear['icestats']['source'][16]['title'];
         }
