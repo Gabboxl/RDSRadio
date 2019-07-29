@@ -141,7 +141,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
 
       file_put_contents('omg.sh', "#!/bin/bash \n mkfifo streams/$icsd.raw");
 
-      file_put_contents('figo.sh', '#!/bin/bash'." \n".'ffmpeg -i https://icstream.rds.radio/rds -vn -f s16le -ac 1 -ar 48000 -acodec pcm_s16le pipe:1 > streams/'."$icsd.raw"); //https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=2606803
+      file_put_contents('figo.sh', '#!/bin/bash'." \n".'ffmpeg -i http://stream1.rds.it:8000/rds -vn -f s16le -ac 1 -ar 48000 -acodec pcm_s16le pipe:1 > streams/'."$icsd.raw"); //https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=2606803
 
       shell_exec('chmod -R 0777 figo.sh omg.sh');
 
@@ -363,7 +363,7 @@ if (!class_exists('\\danog\\MadelineProto\\VoIPServerConfig')) {
         'audio_congestion_window' => 4 * 1024,
     ]
 );
-$MadelineProto = new \danog\MadelineProto\API('session.madeline', ['secret_chats' => ['accept_chats' => false], 'logger' => ['logger' => 3, 'logger_level' => 5, 'logger_param' => getcwd().'/MadelineProto.log'], 'updates' => ['getdifference_interval' => 10], 'serialization' => ['serialization_interval' => 30], 'flood_timeout' => ['wait_if_lt' => 86400]]);
+$MadelineProto = new \danog\MadelineProto\API('session.madeline', ['secret_chats' => ['accept_chats' => false], 'logger' => ['logger' => 3, 'logger_level' => 5, 'logger_param' => getcwd().'/MadelineProto.log'], 'updates' => ['getdifference_interval' => 10], 'serialization' => ['serialization_interval' => 30, 'cleanup_before_serialization' => true], 'flood_timeout' => ['wait_if_lt' => 86400]]);
 $MadelineProto->start();
 foreach (['calls', 'programmed_call', 'my_users'] as $key) {
     if (isset($MadelineProto->API->storage[$key])) {
