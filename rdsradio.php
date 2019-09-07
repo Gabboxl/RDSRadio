@@ -141,7 +141,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
 
       file_put_contents('omg.sh', "#!/bin/bash \n mkfifo streams/$icsd.raw");
 
-      file_put_contents('figo.sh', '#!/bin/bash'." \n".'ffmpeg -i http://stream1.rds.it:8000/rds -vn -f s16le -ac 1 -ar 48000 -acodec pcm_s16le pipe:1 > streams/'."$icsd.raw"); //https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=2606803
+      file_put_contents('figo.sh', '#!/bin/bash'." \n".'ffmpeg -i https://icstream.rds.radio/rds -vn -f s16le -ac 1 -ar 48000 -acodec pcm_s16le pipe:1 > streams/'."$icsd.raw"); //https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=2606803
 
       shell_exec('chmod -R 0777 figo.sh omg.sh');
 
