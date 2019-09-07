@@ -233,11 +233,15 @@ class EventHandler extends \danog\MadelineProto\EventHandler
         try {
             if (!isset($this->my_users[$from_id]) || $message === '/start') {
                 $this->my_users[$from_id] = true;
-                yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => "Ciao! Sono la prima RDS webradio su Telegram! **Chiamami** oppure scrivimi **/call**! \n
+                yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => "Ciao! Sono la prima RDS webradio su Telegram! **Chiamami** oppure scrivimi **/call**! \n\nScopri cosa c'è in diretta adesso con **/nowplaying**! \n
                 Creato con amore da @Gabbo_xl usando @madelineproto.", 'parse_mode' => 'Markdown']);
             }
             if (!isset($this->calls[$from_id]) && $message === '/call') {
                 yield $this->makeCall($from_id);
+            }
+            if (!isset($this->my_users[$from_id]) || $message === '/nowplaying') {
+              $this->my_users[$from_id] = true;
+              yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => '🔴ORA in DIRETTA: <b>'.$this->nowPlaying()[1].'</b>  '.$this->nowPlaying()[2].'<br> Tipo: <i>'.$this->nowPlaying()[0].'</i>', 'parse_mode' => 'html']);
             }
             if (strpos($message, '/program') === 0) {
                 $time = strtotime(str_replace('/program ', '', $message));
