@@ -1,4 +1,4 @@
-# RDSRadio ![GitHub](https://img.shields.io/github/license/Gabboxl/RDSRadio.svg)
+# RDSRadio ![GitHub](https://img.shields.io/github/license/Gabboxl/RDSRadio.svg) [Try me on Telegram!](https://t.me/RDSRadio)
 -----------------------------------
 A simple telegram userbot that streams the "RDS 100% GRANDI SUCCESSI" radio created with https://madelineproto.xyz
 
