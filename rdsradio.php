@@ -90,7 +90,7 @@ class StatusLoop extends ResumableSignalLoop
 
             if ($call->getCallState() === \danog\MadelineProto\VoIP::CALL_STATE_ENDED) {
                 try {
-                        yield $MadelineProto->messages->sendMessage(['no_webpage' => true, 'peer' => $call->getOtherID(), 'message' => 'grz x averci scelto', 'parse_mode' => 'html']);
+                        yield $MadelineProto->messages->sendMessage(['no_webpage' => true, 'peer' => $call->getOtherID(), 'message' => "grz x averci scelto \n Contribuisci al progetto: https://github.com/Gabboxl/RDSRadio", 'parse_mode' => 'html']);
                 } catch (\danog\MadelineProto\Exception $e) {
                     $MadelineProto->logger($e);
                 } catch (\danog\MadelineProto\RPCErrorException $e) {
