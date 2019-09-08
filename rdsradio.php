@@ -161,10 +161,12 @@ class EventHandler extends \danog\MadelineProto\EventHandler
                 $this->logger('DID NOT ACCEPT A CALL');
             }
 
+
+            //trying to get the encryption emojis 5 times...
             $b00l = 0;
             while($b00l < 5){
               try {
-                yield $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'Emojis: '.implode('', $call->getVisualization())]);
+                $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'Emojis: '.implode('', $call->getVisualization())]);
                 $b00l = 5;
             } catch (\danog\MadelineProto\Exception $e) {
                 $this->logger($e);
