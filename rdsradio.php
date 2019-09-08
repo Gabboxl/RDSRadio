@@ -15,20 +15,21 @@ if (!file_exists(__DIR__.'/vendor/autoload.php')) {
 
 echo 'Deserializing MadelineProto from session.madeline...'.PHP_EOL;
 
-
-
 use danog\MadelineProto\Loop\Impl\ResumableSignalLoop;
+
 class MessageLoop extends ResumableSignalLoop
 {
     const INTERVAL = 1;
     private $timeout;
     private $call;
+
     public function __construct($API, $call, $timeout = self::INTERVAL)
     {
         $this->API = $API;
         $this->call = $call;
         $this->timeout = $timeout;
     }
+
     public function loop()
     {
         $MadelineProto = $this->API;
@@ -39,24 +40,26 @@ class MessageLoop extends ResumableSignalLoop
             $result = yield $this->waitSignal($this->pause($this->timeout));
             if ($result) {
                 $logger->logger("Got signal in $this, exiting");
+
                 return;
             }
 
             try {
-              if (file_get_contents('testmoseca.php') != $sucsa->nowPlaying('jsonclear')) { //anti-floodwait
+                if (file_get_contents('testmoseca.php') != $sucsa->nowPlaying('jsonclear')) { //anti-floodwait
 
-                yield $MadelineProto->messages->editMessage(['id' => $this->call->mId, 'peer' => $this->call->getOtherID(), 'message' => 'Stai ascoltando: <b>'.$sucsa->nowPlaying()[1].'</b>  '.$sucsa->nowPlaying()[2].'<br> Tipo: <i>'.$sucsa->nowPlaying()[0].'</i>', 'parse_mode' => 'html']);
-                //anti-floodwait
-                file_put_contents('testmoseca.php', $sucsa->nowPlaying('jsonclear'));
-              }
-            } catch (\danog\MadelineProto\Exception | \danog\MadelineProto\RPCErrorException $e ) {
+                    yield $MadelineProto->messages->editMessage(['id' => $this->call->mId, 'peer' => $this->call->getOtherID(), 'message' => 'Stai ascoltando: <b>'.$sucsa->nowPlaying()[1].'</b>  '.$sucsa->nowPlaying()[2].'<br> Tipo: <i>'.$sucsa->nowPlaying()[0].'</i>', 'parse_mode' => 'html']);
+                    //anti-floodwait
+                    file_put_contents('testmoseca.php', $sucsa->nowPlaying('jsonclear'));
+                }
+            } catch (\danog\MadelineProto\Exception | \danog\MadelineProto\RPCErrorException $e) {
                 $MadelineProto->logger($e);
             }
         }
     }
+
     public function __toString(): string
     {
-        return "VoIP message loop ".$this->call->getOtherId();
+        return 'VoIP message loop '.$this->call->getOtherId();
     }
 }
 class StatusLoop extends ResumableSignalLoop
@@ -64,12 +67,14 @@ class StatusLoop extends ResumableSignalLoop
     const INTERVAL = 2;
     private $timeout;
     private $call;
+
     public function __construct($API, $call, $timeout = self::INTERVAL)
     {
         $this->API = $API;
         $this->call = $call;
         $this->timeout = $timeout;
     }
+
     public function loop()
     {
         $MadelineProto = $this->API;
@@ -80,17 +85,15 @@ class StatusLoop extends ResumableSignalLoop
             $result = yield $this->waitSignal($this->pause($this->timeout));
             if ($result) {
                 $logger->logger("Got signal in $this, exiting");
+
                 return;
             }
 
-
             \danog\MadelineProto\Logger::log(count($MadelineProto->getEventHandler()->calls).' calls running!');
-
-
 
             if ($call->getCallState() === \danog\MadelineProto\VoIP::CALL_STATE_ENDED) {
                 try {
-                        yield $MadelineProto->messages->sendMessage(['no_webpage' => true, 'peer' => $call->getOtherID(), 'message' => "grz x averci scelto \n Contribuisci al progetto: https://github.com/Gabboxl/RDSRadio", 'parse_mode' => 'html']);
+                    yield $MadelineProto->messages->sendMessage(['no_webpage' => true, 'peer' => $call->getOtherID(), 'message' => "grz x averci scelto \n Contribuisci al progetto: https://github.com/Gabboxl/RDSRadio", 'parse_mode' => 'html']);
                 } catch (\danog\MadelineProto\Exception $e) {
                     $MadelineProto->logger($e);
                 } catch (\danog\MadelineProto\RPCErrorException $e) {
@@ -100,14 +103,16 @@ class StatusLoop extends ResumableSignalLoop
                 }
                 @unlink('/tmp/logs'.$call->getCallID()['id'].'.log');
                 @unlink('/tmp/stats'.$call->getCallID()['id'].'.txt');
-		$MadelineProto->getEventHandler()->cleanUpCall($call->getOtherID());
-		return;
+                $MadelineProto->getEventHandler()->cleanUpCall($call->getOtherID());
+
+                return;
             }
         }
     }
+
     public function __toString(): string
     {
-        return "VoIP status loop ".$this->call->getOtherId();
+        return 'VoIP status loop '.$this->call->getOtherId();
     }
 }
 
@@ -135,19 +140,19 @@ class EventHandler extends \danog\MadelineProto\EventHandler
 
     public function configureCall($call)
     {
-      $icsd = date('U');
+        $icsd = date('U');
 
-      shell_exec('mkdir streams');
+        shell_exec('mkdir streams');
 
-      file_put_contents('omg.sh', "#!/bin/bash \n mkfifo streams/$icsd.raw");
+        file_put_contents('omg.sh', "#!/bin/bash \n mkfifo streams/$icsd.raw");
 
-      file_put_contents('figo.sh', '#!/bin/bash'." \n".'ffmpeg -i https://icstream.rds.radio/rds -vn -f s16le -ac 1 -ar 48000 -acodec pcm_s16le pipe:1 > streams/'."$icsd.raw"); //https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=2606803
+        file_put_contents('figo.sh', '#!/bin/bash'." \n".'ffmpeg -i https://icstream.rds.radio/rds -vn -f s16le -ac 1 -ar 48000 -acodec pcm_s16le pipe:1 > streams/'."$icsd.raw"); //https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=2606803
 
-      shell_exec('chmod -R 0777 figo.sh omg.sh');
+        shell_exec('chmod -R 0777 figo.sh omg.sh');
 
-      shell_exec("./omg.sh");
+        shell_exec('./omg.sh');
 
-      shell_exec("screen -S RDSstream$icsd -dm ./figo.sh");
+        shell_exec("screen -S RDSstream$icsd -dm ./figo.sh");
 
         $call->configuration['enable_NS'] = false;
         $call->configuration['enable_AGC'] = false;
@@ -161,21 +166,21 @@ class EventHandler extends \danog\MadelineProto\EventHandler
                 $this->logger('DID NOT ACCEPT A CALL');
             }
 
-
             //trying to get the encryption emojis 5 times...
             $b00l = 0;
-            while($b00l < 5){
-              try {
-                $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'Emojis: '.implode('', $call->getVisualization())]);
-                $b00l = 5;
-            } catch (\danog\MadelineProto\Exception $e) {
-                $this->logger($e);
-                $b00l++;
+            while ($b00l < 5) {
+                try {
+                    $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'Emojis: '.implode('', $call->getVisualization())]);
+                    $b00l = 5;
+                } catch (\danog\MadelineProto\Exception $e) {
+                    $this->logger($e);
+                    $b00l++;
+                }
             }
-          }
         }
         if ($call->getCallState() !== \danog\MadelineProto\VoIP::CALL_STATE_ENDED) {
             $this->calls[$call->getOtherID()] = $call;
+
             try {
                 $call->mId = yield $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'Se leggi wuesto hai una cacata connexxione (da modificarz)'])['id'];
             } catch (\Throwable $e) {
@@ -188,6 +193,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
         }
         //yield $this->messages->sendMessage(['message' => var_export($call->configuration, true), 'peer' => $call->getOtherID()]);
     }
+
     public function cleanUpCall($user)
     {
         if (isset($this->calls[$user])) {
@@ -202,6 +208,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
             unset($this->statusLoops[$user]);
         }
     }
+
     public function makeCall($user)
     {
         try {
@@ -209,7 +216,8 @@ class EventHandler extends \danog\MadelineProto\EventHandler
                 if ($this->calls[$user]->getCallState() === \danog\MadelineProto\VoIP::CALL_STATE_ENDED) {
                     yield $this->cleanUpCall($user);
                 } else {
-                    yield $this->messages->sendMessage(['peer' => $user, 'message' => "Sono già in chiamata con te!"]);
+                    yield $this->messages->sendMessage(['peer' => $user, 'message' => 'Sono già in chiamata con te!']);
+
                     return;
                 }
             }
@@ -230,26 +238,27 @@ class EventHandler extends \danog\MadelineProto\EventHandler
             yield $this->messages->sendMessage(['peer' => $user, 'message' => (string) $e]);
         }
     }
+
     public function handleMessage($chat_id, $from_id, $message)
     {
         try {
             if (!isset($this->my_users[$from_id]) || $message === '/start') {
                 $this->my_users[$from_id] = true;
-                yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => "Ciao! Sono la prima RDS webradio su Telegram! **Chiamami** oppure scrivimi **/call**! \n\nScopri cosa c'è in diretta adesso con **/nowplaying**! \n
+                yield $this->messages->sendMessage(['no_webpage'                    => true, 'peer' => $chat_id, 'message' => "Ciao! Sono la prima RDS webradio su Telegram! **Chiamami** oppure scrivimi **/call**! \n\nScopri cosa c'è in diretta adesso con **/nowplaying**! \n
                 Creato con amore da @Gabbo_xl usando @madelineproto.", 'parse_mode' => 'Markdown']);
             }
             if (!isset($this->calls[$from_id]) && $message === '/call') {
                 yield $this->makeCall($from_id);
             }
             if (!isset($this->my_users[$from_id]) || $message === '/nowplaying') {
-              $this->my_users[$from_id] = true;
-              yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => '🔴ORA in DIRETTA: <b>'.$this->nowPlaying()[1].'</b>  '.$this->nowPlaying()[2].'<br> Tipo: <i>'.$this->nowPlaying()[0].'</i>', 'parse_mode' => 'html']);
+                $this->my_users[$from_id] = true;
+                yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => '🔴ORA in DIRETTA: <b>'.$this->nowPlaying()[1].'</b>  '.$this->nowPlaying()[2].'<br> Tipo: <i>'.$this->nowPlaying()[0].'</i>', 'parse_mode' => 'html']);
             }
             if (strpos($message, '/program') === 0) {
                 $time = strtotime(str_replace('/program ', '', $message));
                 if ($time === false) {
                     yield $this->messages->sendMessage(['peer' => $chat_id, 'message' => 'Orario specificato non valido']);
-                } else if ($time - time() <= 0) {
+                } elseif ($time - time() <= 0) {
                     yield $this->messages->sendMessage(['peer' => $chat_id, 'message' => 'Orario specificato non valido']);
                 } else {
                     yield $this->messages->sendMessage(['peer' => $chat_id, 'message' => 'OK']);
@@ -267,7 +276,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
                 $message = implode(' ', $message);
                 $params = ['multiple' => true];
                 foreach (yield $this->get_dialogs() as $peer) {
-                    $params []= ['peer' => $peer, 'message' => $message];
+                    $params[] = ['peer' => $peer, 'message' => $message];
                 }
                 yield $this->messages->sendMessage($params);
             }
@@ -351,6 +360,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
             })());
         }
     }
+
     public function __sleep()
     {
         return ['programmed_call', 'my_users'];
