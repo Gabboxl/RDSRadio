@@ -80,6 +80,7 @@ class StatusLoop extends ResumableSignalLoop
         $MadelineProto = $this->API;
         $logger = &$MadelineProto->logger;
         $call = $this->call;
+        $a = new EventHandler($MadelineProto);
 
         while (true) {
             $result = yield $this->waitSignal($this->pause($this->timeout));
@@ -89,7 +90,7 @@ class StatusLoop extends ResumableSignalLoop
                 return;
             }
 
-            \danog\MadelineProto\Logger::log(count($MadelineProto->getEventHandler()->calls).' calls running!');
+            \danog\MadelineProto\Logger::log(count(yield $MadelineProto->getEventHandler()->calls).' calls running!');
 
             if ($call->getCallState() === \danog\MadelineProto\VoIP::CALL_STATE_ENDED) {
                 try {
@@ -123,6 +124,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
     private $statusLoops = [];
     private $programmed_call;
     private $my_users;
+    public $calls = [];
 
     public function nowPlaying($returnvariable = null)
     {
@@ -182,7 +184,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
             $this->calls[$call->getOtherID()] = $call;
 
             try {
-                $call->mId = yield $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'Stai ascoltando: <b>'.nowPlaying()[1].'</b>  '.nowPlaying()[2].'<br> Tipo: <i>'.nowPlaying()[0].'</i>', 'parse_mode' => 'html'])['id'];
+                $call->mId = yield $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'asd', 'parse_mode' => 'html'])['id'];
             } catch (\Throwable $e) {
                 $this->logger($e);
             }
@@ -380,12 +382,15 @@ if (!class_exists('\\danog\\MadelineProto\\VoIPServerConfig')) {
     ]
 );
 $MadelineProto = new \danog\MadelineProto\API('session.madeline', ['secret_chats' => ['accept_chats' => false], 'logger' => ['logger' => 3, 'logger_level' => 5, 'logger_param' => getcwd().'/MadelineProto.log'], 'updates' => ['getdifference_interval' => 10], 'serialization' => ['serialization_interval' => 30, 'cleanup_before_serialization' => true], 'flood_timeout' => ['wait_if_lt' => 86400]]);
-$MadelineProto->start();
 foreach (['calls', 'programmed_call', 'my_users'] as $key) {
     if (isset($MadelineProto->API->storage[$key])) {
         unset($MadelineProto->API->storage[$key]);
     }
 }
 
-$MadelineProto->setEventHandler('\EventHandler');
+$MadelineProto->async(true);
+$MadelineProto->loop(function () use ($MadelineProto) {
+    yield $MadelineProto->start();
+    yield $MadelineProto->setEventHandler('\EventHandler');
+});
 $MadelineProto->loop();
