@@ -182,7 +182,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
             $this->calls[$call->getOtherID()] = $call;
 
             try {
-                $call->mId = yield $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'Se leggi wuesto hai una cacata connexxione (da modificarz)'])['id'];
+                $call->mId = yield $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'Stai ascoltando: <b>'.$sucsa->nowPlaying()[1].'</b>  '.$sucsa->nowPlaying()[2].'<br> Tipo: <i>'.$sucsa->nowPlaying()[0].'</i>'])['id'];
             } catch (\Throwable $e) {
                 $this->logger($e);
             }
