@@ -131,10 +131,10 @@ class EventHandler extends \danog\MadelineProto\EventHandler
         $url = 'https://icstream.rds.radio/status-json.xsl';  //vekkio http://stream1.rds.it:8000/status-json.xsl
         $jsonroba = file_get_contents($url);
         $jsonclear = json_decode($jsonroba, true);
-        $metadata = explode('*', $jsonclear['icestats']['source'][16]['title']);
+        $metadata = explode('*', $jsonclear['icestats']['source'][12]['title']);
 
         if ($returnvariable == 'jsonclear') {
-            return $jsonclear['icestats']['source'][16]['title'];
+            return $jsonclear['icestats']['source'][12]['title'];
         }
 
         return $metadata;
