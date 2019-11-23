@@ -34,7 +34,6 @@ class MessageLoop extends ResumableSignalLoop
     {
         $MadelineProto = $this->API;
         $logger = &$MadelineProto->logger;
-        $sucsa = new EventHandler($MadelineProto);
 
         while (true) {
             $result = yield $this->waitSignal($this->pause($this->timeout));
@@ -45,14 +44,14 @@ class MessageLoop extends ResumableSignalLoop
             }
 
             try {
-                if ($sucsa->jsonmoseca != $sucsa->nowPlaying('jsonclear')) { //anti-floodwait
+                if ($MadelineProto->jsonmoseca != $MadelineProto->nowPlaying('jsonclear')) { //anti-floodwait
 
-                    yield $MadelineProto->messages->editMessage(['id' => $this->call->mId, 'peer' => $this->call->getOtherID(), 'message' => 'Stai ascoltando: <b>'.$sucsa->nowPlaying()[1].'</b>  '.$sucsa->nowPlaying()[2].'<br> Tipo: <i>'.$sucsa->nowPlaying()[0].'</i>', 'parse_mode' => 'html']);
+                    yield $MadelineProto->messages->editMessage(['id' => $this->call->mId, 'peer' => $this->call->getOtherID(), 'message' => 'Stai ascoltando: <b>'.$MadelineProto->nowPlaying()[1].'</b>  '.$MadelineProto->nowPlaying()[2].'<br> Tipo: <i>'.$MadelineProto->nowPlaying()[0].'</i>', 'parse_mode' => 'html']);
                     //anti-floodwait
-                    $sucsa->jsonmoseca =  $sucsa->nowPlaying('jsonclear');
+                    $MadelineProto->jsonmoseca =  $MadelineProto->nowPlaying('jsonclear');
                 }
             } catch (\danog\MadelineProto\Exception | \danog\MadelineProto\RPCErrorException $e) {
-                $MadelineProto->logger($e);
+                $logger->logger($e);
             }
         }
     }
@@ -67,20 +66,17 @@ class StatusLoop extends ResumableSignalLoop
     const INTERVAL = 2;
     private $timeout;
     private $call;
-    private $MadelineProto;
-    private $a;
 
     public function __construct($API, $call, $timeout = self::INTERVAL)
     {
         $this->API = $API;
         $this->call = $call;
         $this->timeout = $timeout;
-        $this->MadelineProto = $this->API;
-        $this->a = new EventHandler($this->MadelineProto);
     }
 
     public function loop()
     {
+        $MadelineProto = $this->API;
         $logger = &$MadelineProto->logger;
         $call = $this->call;
 
@@ -92,17 +88,17 @@ class StatusLoop extends ResumableSignalLoop
                 return;
             }
 
-            \danog\MadelineProto\Logger::log(count(yield $MadelineProto->getEventHandler()->calls).' calls running!');
+          //  \danog\MadelineProto\Logger::log(count(yield $MadelineProto->getEventHandler()->calls).' calls running!');
 
             if ($call->getCallState() === \danog\MadelineProto\VoIP::CALL_STATE_ENDED) {
                 try {
                     yield $MadelineProto->messages->sendMessage(['no_webpage' => true, 'peer' => $call->getOtherID(), 'message' => "grz x averci scelto \n Contribuisci al progetto: https://github.com/Gabboxl/RDSRadio", 'parse_mode' => 'html']);
                 } catch (\danog\MadelineProto\Exception $e) {
-                    $MadelineProto->logger($e);
+                    $logger->logger($e);
                 } catch (\danog\MadelineProto\RPCErrorException $e) {
-                    $MadelineProto->logger($e);
+                    $logger->logger($e);
                 } catch (\danog\MadelineProto\Exception $e) {
-                    $MadelineProto->logger($e);
+                    $logger->logger($e);
                 }
                 @unlink('/tmp/logs'.$call->getCallID()['id'].'.log');
                 @unlink('/tmp/stats'.$call->getCallID()['id'].'.txt');
@@ -188,6 +184,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
 
             try {
                 $call->mId = yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $call->getOtherID(), 'message' => 'Stai ascoltando: <b>'.$this->nowPlaying()[1].'</b>  '.$this->nowPlaying()[2].'<br> Tipo: <i>'.$this->nowPlaying()[0].'</i>', 'parse_mode' => 'html'])['id'];
+                $this->jsonmoseca = $this->nowPlaying('jsonclear');
               } catch (\Throwable $e) {
                 $this->logger($e);
             }
