@@ -45,11 +45,11 @@ class MessageLoop extends ResumableSignalLoop
             }
 
             try {
-                if (file_get_contents('testmoseca.php') != $sucsa->nowPlaying('jsonclear')) { //anti-floodwait
+                if ($sucsa->jsonmoseca != $sucsa->nowPlaying('jsonclear')) { //anti-floodwait
 
                     yield $MadelineProto->messages->editMessage(['id' => $this->call->mId, 'peer' => $this->call->getOtherID(), 'message' => 'Stai ascoltando: <b>'.$sucsa->nowPlaying()[1].'</b>  '.$sucsa->nowPlaying()[2].'<br> Tipo: <i>'.$sucsa->nowPlaying()[0].'</i>', 'parse_mode' => 'html']);
                     //anti-floodwait
-                    file_put_contents('testmoseca.php', $sucsa->nowPlaying('jsonclear'));
+                    $sucsa->jsonmoseca =  $sucsa->nowPlaying('jsonclear');
                 }
             } catch (\danog\MadelineProto\Exception | \danog\MadelineProto\RPCErrorException $e) {
                 $MadelineProto->logger($e);
@@ -67,20 +67,22 @@ class StatusLoop extends ResumableSignalLoop
     const INTERVAL = 2;
     private $timeout;
     private $call;
+    private $MadelineProto;
+    private $a;
 
     public function __construct($API, $call, $timeout = self::INTERVAL)
     {
         $this->API = $API;
         $this->call = $call;
         $this->timeout = $timeout;
+        $this->MadelineProto = $this->API;
+        $this->a = new EventHandler($this->MadelineProto);
     }
 
     public function loop()
     {
-        $MadelineProto = $this->API;
         $logger = &$MadelineProto->logger;
         $call = $this->call;
-        $a = new EventHandler($MadelineProto);
 
         while (true) {
             $result = yield $this->waitSignal($this->pause($this->timeout));
@@ -125,6 +127,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
     private $programmed_call;
     private $my_users;
     public $calls = [];
+    public $jsonmoseca = "";
 
     public function nowPlaying($returnvariable = null)
     {
@@ -184,8 +187,8 @@ class EventHandler extends \danog\MadelineProto\EventHandler
             $this->calls[$call->getOtherID()] = $call;
 
             try {
-                $call->mId = yield $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'asd', 'parse_mode' => 'html'])['id'];
-            } catch (\Throwable $e) {
+                $call->mId = yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $call->getOtherID(), 'message' => 'Stai ascoltando: <b>'.$this->nowPlaying()[1].'</b>  '.$this->nowPlaying()[2].'<br> Tipo: <i>'.$this->nowPlaying()[0].'</i>', 'parse_mode' => 'html'])['id'];
+              } catch (\Throwable $e) {
                 $this->logger($e);
             }
             $this->messageLoops[$call->getOtherID()] = new MessageLoop($this, $call);
