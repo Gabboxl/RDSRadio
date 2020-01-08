@@ -48,7 +48,7 @@ class MessageLoop extends ResumableSignalLoop
 
                     yield $MadelineProto->messages->editMessage(['id' => $this->call->mId, 'peer' => $this->call->getOtherID(), 'message' => 'Stai ascoltando: <b>'.$MadelineProto->nowPlaying()[1].'</b>  '.$MadelineProto->nowPlaying()[2].'<br> Tipo: <i>'.$MadelineProto->nowPlaying()[0].'</i>', 'parse_mode' => 'html']);
                     //anti-floodwait
-                    $MadelineProto->jsonmoseca =  $MadelineProto->nowPlaying('jsonclear');
+                    $MadelineProto->jsonmoseca = $MadelineProto->nowPlaying('jsonclear');
                 }
             } catch (\danog\MadelineProto\Exception | \danog\MadelineProto\RPCErrorException $e) {
                 $logger->logger($e);
@@ -88,7 +88,7 @@ class StatusLoop extends ResumableSignalLoop
                 return;
             }
 
-          //  \danog\MadelineProto\Logger::log(count(yield $MadelineProto->getEventHandler()->calls).' calls running!');
+            //  \danog\MadelineProto\Logger::log(count(yield $MadelineProto->getEventHandler()->calls).' calls running!');
 
             if ($call->getCallState() === \danog\MadelineProto\VoIP::CALL_STATE_ENDED) {
                 try {
@@ -123,7 +123,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
     private $programmed_call;
     private $my_users;
     public $calls = [];
-    public $jsonmoseca = "";
+    public $jsonmoseca = '';
 
     public function nowPlaying($returnvariable = null)
     {
@@ -185,7 +185,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
             try {
                 $call->mId = yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $call->getOtherID(), 'message' => 'Stai ascoltando: <b>'.$this->nowPlaying()[1].'</b>  '.$this->nowPlaying()[2].'<br> Tipo: <i>'.$this->nowPlaying()[0].'</i>', 'parse_mode' => 'html'])['id'];
                 $this->jsonmoseca = $this->nowPlaying('jsonclear');
-              } catch (\Throwable $e) {
+            } catch (\Throwable $e) {
                 $this->logger($e);
             }
             $this->messageLoops[$call->getOtherID()] = new MessageLoop($this, $call);
