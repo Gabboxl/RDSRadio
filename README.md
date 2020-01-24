@@ -13,4 +13,4 @@ To get started, run *rdsradio.php* (recommended) or install MadelineProto from h
 - [php-libtgvoip](https://voip.madelineproto.xyz)
 
 ----
-Working with MadelineProto [4.2.24](https://github.com/danog/MadelineProto/releases/tag/4.2.24)   ([e81ecc87c998b40ae474c526008fab6d8a5d0818](https://github.com/danog/MadelineProto/commit/e81ecc87c998b40ae474c526008fab6d8a5d0818))
+WORKING with MadelineProto commit [91590ff360d07e7d56bae0376c2a1e904305ad38](https://github.com/danog/MadelineProto/commit/91590ff360d07e7d56bae0376c2a1e904305ad38)
