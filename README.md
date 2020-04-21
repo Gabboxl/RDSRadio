@@ -5,7 +5,7 @@ A simple telegram userbot that streams the "RDS 100% GRANDI SUCCESSI" radio crea
 # Requirements
 
 - ffmpeg (`sudo apt install ffmpeg`)
-- PHP **(7.3 works well - 7.4 has some issues)**
+- PHP **7.4**
 - screen (`sudo apt install screen`)
 - [php-libtgvoip](https://voip.madelineproto.xyz)
 
