@@ -97,8 +97,6 @@ class StatusLoop extends ResumableSignalLoop
                     $logger->logger($e);
                 } catch (\danog\MadelineProto\RPCErrorException $e) {
                     $logger->logger($e);
-                } catch (\danog\MadelineProto\Exception $e) {
-                    $logger->logger($e);
                 }
                 @unlink('/tmp/logs'.$call->getCallID()['id'].'.log');
                 @unlink('/tmp/stats'.$call->getCallID()['id'].'.txt');
