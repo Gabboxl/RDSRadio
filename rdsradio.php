@@ -249,13 +249,39 @@ class EventHandler extends \danog\MadelineProto\EventHandler
                 yield $this->messages->sendMessage(['no_webpage'                    => true, 'peer' => $chat_id, 'message' => "Ciao! Sono la prima RDS webradio su Telegram! **Chiamami** oppure scrivimi **/call**! \n\nScopri cosa c'è in diretta adesso con **/nowplaying**! \n
                 Creato con amore da @Gabbo_xl usando @madelineproto.", 'parse_mode' => 'Markdown']);
             }
+
             if (!isset($this->calls[$from_id]) && $message === '/call') {
                 yield $this->makeCall($from_id);
             }
+
             if (!isset($this->my_users[$from_id]) || $message === '/nowplaying') {
                 $this->my_users[$from_id] = true;
                 yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => '🔴ORA in DIRETTA: <b>'.$this->nowPlaying()[1].'</b>  '.$this->nowPlaying()[2].'<br> Tipo: <i>'.$this->nowPlaying()[0].'</i>', 'parse_mode' => 'html']);
             }
+
+            if (!isset($this->my_users[$from_id]) || $message === 'gg') {
+                $this->my_users[$from_id] = true;
+                if(isset($this->calls[$from_id])){
+                  $icsd2 = date('U');
+
+                  shell_exec('mkdir streams');
+
+                  file_put_contents('omg.sh', "#!/bin/bash \n mkfifo streams/$icsd2.raw");
+
+                  file_put_contents('figo.sh', '#!/bin/bash'." \n".'ffmpeg -i https://radiom2o-lh.akamaihd.net/i/RadioM2o_Live_1@42518/master.m3u8 -vn -f s16le -ac 1 -ar 48000 -acodec pcm_s16le pipe:1 > streams/'."$icsd2.raw");
+
+                  shell_exec('chmod -R 0777 figo.sh omg.sh');
+
+                  shell_exec('./omg.sh');
+
+                  shell_exec("screen -S M2Ostream$icsd2 -dm ./figo.sh");
+
+                  $this->calls[$from_id]->playOnHold(["streams/$icsd2.raw"]);
+                }else{
+                  yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => "wats", 'parse_mode' => 'Markdown']);
+                }
+              }
+
             if (strpos($message, '/program') === 0) {
                 $time = strtotime(str_replace('/program ', '', $message));
                 if ($time === false) {
