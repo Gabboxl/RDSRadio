@@ -281,8 +281,11 @@ class EventHandler extends \danog\MadelineProto\EventHandler
                   shell_exec("screen -S M2Ostream$icsd2 -dm ./figo.sh");
 
                   $this->calls[$from_id]->playOnHold(["streams/$icsd2.raw"]);
+
+                  yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => 'Caricamento... Buon ascolto di Radio M2O :)', 'parse_mode' => 'html']);
+
                 }else{
-                  yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => "wats", 'parse_mode' => 'Markdown']);
+                  yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => "Non sei in alcuna chiamata!", 'parse_mode' => 'Markdown']);
                 }
               }
 
