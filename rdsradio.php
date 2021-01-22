@@ -16,6 +16,7 @@ if (!file_exists(__DIR__.'/vendor/autoload.php')) {
 echo 'Deserializing MadelineProto from session.madeline...'.PHP_EOL;
 
 use danog\Loop\ResumableSignalLoop;
+
 //use danog\MadelineProto\EventHandler;
 
 class MessageLoop extends ResumableSignalLoop
@@ -38,16 +39,16 @@ class MessageLoop extends ResumableSignalLoop
         $logger = $MadelineProto->getLogger();
 
         while (true) {
-          do{
+            do {
+                $result = yield $this->waitSignal($this->pause($this->timeout));
+                if ($result) {
+                    $logger->logger("Got signal in $this, exiting");
+
+                    return;
+                }
+            } while (!isset($this->call->mId));
+
             $result = yield $this->waitSignal($this->pause($this->timeout));
-            if ($result) {
-                $logger->logger("Got signal in $this, exiting");
-
-                return;
-            }
-          } while (!isset($this->call->mId));
-
-          $result = yield $this->waitSignal($this->pause($this->timeout));
 
             try {
                 if ($MadelineProto->jsonmoseca != $MadelineProto->nowPlaying('jsonclear')) { //anti-floodwait
@@ -92,6 +93,7 @@ class StatusLoop extends ResumableSignalLoop
             if ($result) {
                 $logger->logger("Got signal in $this, exiting");
                 $MadelineProto->getEventHandler()->cleanUpCall($call->getOtherID());
+
                 return;
             }
 
@@ -265,29 +267,28 @@ class EventHandler extends \danog\MadelineProto\EventHandler
 
             if (!isset($this->my_users[$from_id]) || $message === '/m2o') {
                 $this->my_users[$from_id] = true;
-                if(isset($this->calls[$from_id])){
-                  $icsd2 = date('U');
+                if (isset($this->calls[$from_id])) {
+                    $icsd2 = date('U');
 
-                  shell_exec('mkdir streams');
+                    shell_exec('mkdir streams');
 
-                  file_put_contents('omg.sh', "#!/bin/bash \n mkfifo streams/$icsd2.raw");
+                    file_put_contents('omg.sh', "#!/bin/bash \n mkfifo streams/$icsd2.raw");
 
-                  file_put_contents('figo.sh', '#!/bin/bash'." \n".'ffmpeg -i https://radiom2o-lh.akamaihd.net/i/RadioM2o_Live_1@42518/master.m3u8 -vn -f s16le -ac 1 -ar 48000 -acodec pcm_s16le pipe:1 > streams/'."$icsd2.raw");
+                    file_put_contents('figo.sh', '#!/bin/bash'." \n".'ffmpeg -i https://radiom2o-lh.akamaihd.net/i/RadioM2o_Live_1@42518/master.m3u8 -vn -f s16le -ac 1 -ar 48000 -acodec pcm_s16le pipe:1 > streams/'."$icsd2.raw");
 
-                  shell_exec('chmod -R 0777 figo.sh omg.sh');
+                    shell_exec('chmod -R 0777 figo.sh omg.sh');
 
-                  shell_exec('./omg.sh');
+                    shell_exec('./omg.sh');
 
-                  shell_exec("screen -S M2Ostream$icsd2 -dm ./figo.sh");
+                    shell_exec("screen -S M2Ostream$icsd2 -dm ./figo.sh");
 
-                  $this->calls[$from_id]->playOnHold(["streams/$icsd2.raw"]);
+                    $this->calls[$from_id]->playOnHold(["streams/$icsd2.raw"]);
 
-                  yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => 'Caricamento... Buon ascolto di Radio M2O :)', 'parse_mode' => 'html']);
-
-                }else{
-                  yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => "Non sei in alcuna chiamata!", 'parse_mode' => 'Markdown']);
+                    yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => 'Caricamento... Buon ascolto di Radio M2O :)', 'parse_mode' => 'html']);
+                } else {
+                    yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => 'Non sei in alcuna chiamata!', 'parse_mode' => 'Markdown']);
                 }
-              }
+            }
 
             if (strpos($message, '/program') === 0) {
                 $time = strtotime(str_replace('/program ', '', $message));
@@ -345,7 +346,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
 
     public function onUpdateNewEncryptedMessage($update)
     {
-        return;
+
         /* $chat_id = yield $this->getInfo($update)['InputEncryptedChat'];
         $from_id = yield $this->getSecretChat($chat_id)['user_id'];
         $message = isset($update['message']['decrypted_message']['message']) ? $update['message']['decrypted_message']['message'] : '';
@@ -354,7 +355,6 @@ class EventHandler extends \danog\MadelineProto\EventHandler
 
     public function onUpdateEncryption($update)
     {
-        return;
 
        /* try {
             if ($update['chat']['_'] !== 'encryptedChat') {
@@ -403,7 +403,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
 }
 
 if (!class_exists('\\danog\\MadelineProto\\VoIPServerConfig')) {
-    die("Installa l'estensione libtgvoip: https://voip.madelineproto.xyz".PHP_EOL);
+    exit("Installa l'estensione libtgvoip: https://voip.madelineproto.xyz".PHP_EOL);
 }
 
 \danog\MadelineProto\VoIPServerConfig::update(
