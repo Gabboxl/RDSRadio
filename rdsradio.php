@@ -263,7 +263,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
                 yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => '🔴ORA in ONDA: <b>'.$this->nowPlaying()[1].'</b>  '.$this->nowPlaying()[2].'<br> Tipo: <i>'.$this->nowPlaying()[0].'</i>', 'parse_mode' => 'html']);
             }
 
-            if (!isset($this->my_users[$from_id]) || $message === 'gg') {
+            if (!isset($this->my_users[$from_id]) || $message === '/m2o') {
                 $this->my_users[$from_id] = true;
                 if(isset($this->calls[$from_id])){
                   $icsd2 = date('U');
