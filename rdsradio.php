@@ -15,13 +15,15 @@ if (!file_exists(__DIR__.'/vendor/autoload.php')) {
 
 echo 'Deserializing MadelineProto from session.madeline...'.PHP_EOL;
 
-use danog\MadelineProto\Loop\Impl\ResumableSignalLoop;
+use danog\Loop\ResumableSignalLoop;
+//use danog\MadelineProto\EventHandler;
 
 class MessageLoop extends ResumableSignalLoop
 {
-    const INTERVAL = 1;
+    const INTERVAL = 10000;
     private $timeout;
     private $call;
+    private EventHandler $API;
 
     public function __construct($API, $call, $timeout = self::INTERVAL)
     {
@@ -30,18 +32,22 @@ class MessageLoop extends ResumableSignalLoop
         $this->timeout = $timeout;
     }
 
-    public function loop()
+    public function loop(): \Generator
     {
         $MadelineProto = $this->API;
-        $logger = &$MadelineProto->logger;
+        $logger = $MadelineProto->getLogger();
 
         while (true) {
+          do{
             $result = yield $this->waitSignal($this->pause($this->timeout));
             if ($result) {
                 $logger->logger("Got signal in $this, exiting");
 
                 return;
             }
+          } while (!isset($this->call->mId));
+
+          $result = yield $this->waitSignal($this->pause($this->timeout));
 
             try {
                 if ($MadelineProto->jsonmoseca != $MadelineProto->nowPlaying('jsonclear')) { //anti-floodwait
@@ -63,9 +69,10 @@ class MessageLoop extends ResumableSignalLoop
 }
 class StatusLoop extends ResumableSignalLoop
 {
-    const INTERVAL = 2;
+    const INTERVAL = 2000;
     private $timeout;
     private $call;
+    private EventHandler $API;
 
     public function __construct($API, $call, $timeout = self::INTERVAL)
     {
@@ -74,17 +81,17 @@ class StatusLoop extends ResumableSignalLoop
         $this->timeout = $timeout;
     }
 
-    public function loop()
+    public function loop(): \Generator
     {
         $MadelineProto = $this->API;
-        $logger = &$MadelineProto->logger;
+        $logger = $MadelineProto->getLogger();
         $call = $this->call;
 
         while (true) {
             $result = yield $this->waitSignal($this->pause($this->timeout));
             if ($result) {
                 $logger->logger("Got signal in $this, exiting");
-
+                $MadelineProto->getEventHandler()->cleanUpCall($call->getOtherID());
                 return;
             }
 
@@ -327,7 +334,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
         if ($update['message']['out'] || $update['message']['to_id']['_'] !== 'peerUser' || !isset($update['message']['from_id'])) {
             return;
         }
-        $this->logger->logger($update);
+        $this->logger($update);
         $chat_id = $from_id = yield $this->getInfo($update)['bot_api_id'];
         $message = $update['message']['message'] ?? '';
         yield $this->handleMessage($chat_id, $from_id, $message);
@@ -368,7 +375,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
 
     /*public function onAny($update)
     {
-        $this->logger->logger($update);
+        $this->logger($update);
     }*/
 
     public function __construct($API)

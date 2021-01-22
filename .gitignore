@@ -15,6 +15,9 @@ session.madeline.lock
 madeline.phar
 madeline.phar.version
 madeline.php
+session.madeline.lightState.php
+session.madeline.safe.php
+
 
 #screen
 screenlog.*
