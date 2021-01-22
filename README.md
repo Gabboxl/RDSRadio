@@ -11,7 +11,7 @@ A simple telegram userbot that streams the "RDS 100% GRANDI SUCCESSI" radio crea
 
 # How to use
 
-To get started, run *rdsradio.php* (recommended) or install MadelineProto from https://docs.madelineproto.xyz/docs/INSTALLATION.html
+To get started, run `php rdsradio.php` (recommended) **or** install MadelineProto from https://docs.madelineproto.xyz/docs/INSTALLATION.html
 
 ----
 WORKING with MadelineProto commit [91590ff360d07e7d56bae0376c2a1e904305ad38](https://github.com/danog/MadelineProto/commit/91590ff360d07e7d56bae0376c2a1e904305ad38)
