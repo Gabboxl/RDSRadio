@@ -260,7 +260,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
 
             if (!isset($this->my_users[$from_id]) || $message === '/nowplaying') {
                 $this->my_users[$from_id] = true;
-                yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => '🔴ORA in DIRETTA: <b>'.$this->nowPlaying()[1].'</b>  '.$this->nowPlaying()[2].'<br> Tipo: <i>'.$this->nowPlaying()[0].'</i>', 'parse_mode' => 'html']);
+                yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $chat_id, 'message' => '🔴ORA in ONDA: <b>'.$this->nowPlaying()[1].'</b>  '.$this->nowPlaying()[2].'<br> Tipo: <i>'.$this->nowPlaying()[0].'</i>', 'parse_mode' => 'html']);
             }
 
             if (!isset($this->my_users[$from_id]) || $message === 'gg') {
