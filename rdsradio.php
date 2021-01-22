@@ -116,8 +116,8 @@ class StatusLoop extends ResumableSignalLoop
 class EventHandler extends \danog\MadelineProto\EventHandler
 {
     const ADMINS = [218297024]; // @Gabbo_xl
-    private $messageLoops = [];
-    private $statusLoops = [];
+    private array $messageLoops = [];
+    private array $statusLoops = [];
     private $programmed_call;
     private $my_users;
     public $calls = [];
@@ -165,15 +165,14 @@ class EventHandler extends \danog\MadelineProto\EventHandler
                 $this->logger('DID NOT ACCEPT A CALL');
             }
 
-            //trying to get the encryption emojis 5 times...
-            $b00l = 0;
-            while ($b00l < 5) {
+            //trying to get the encryption emojis...
+            while ($call->getCallState() === \danog\MadelineProto\VoIP::CALL_STATE_READY) {
                 try {
                     $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'Emojis: '.implode('', $call->getVisualization())]);
-                    $b00l = 5;
+                    break;
                 } catch (\danog\MadelineProto\Exception $e) {
                     $this->logger($e);
-                    $b00l++;
+                    continue;
                 }
             }
         }
@@ -337,17 +336,17 @@ class EventHandler extends \danog\MadelineProto\EventHandler
     public function onUpdateNewEncryptedMessage($update)
     {
         return;
-        $chat_id = yield $this->getInfo($update)['InputEncryptedChat'];
+        /* $chat_id = yield $this->getInfo($update)['InputEncryptedChat'];
         $from_id = yield $this->getSecretChat($chat_id)['user_id'];
         $message = isset($update['message']['decrypted_message']['message']) ? $update['message']['decrypted_message']['message'] : '';
-        yield $this->handleMessage($chat_id, $from_id, $message);
+        yield $this->handleMessage($chat_id, $from_id, $message); */
     }
 
     public function onUpdateEncryption($update)
     {
         return;
 
-        try {
+       /* try {
             if ($update['chat']['_'] !== 'encryptedChat') {
                 return;
             }
@@ -357,7 +356,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
         } catch (\danog\MadelineProto\Exception $e) {
             return;
         }
-        yield $this->handleMessage($chat_id, $from_id, $message);
+        yield $this->handleMessage($chat_id, $from_id, $message); */
     }
 
     public function onUpdatePhoneCall($update)
