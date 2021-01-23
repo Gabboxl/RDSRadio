@@ -189,7 +189,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
             $this->calls[$call->getOtherID()] = $call;
 
             try {
-                $call->mId = yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $call->getOtherID(), 'message' => 'Stai ascoltando: <b>'.$this->nowPlaying()[1].'</b>  '.$this->nowPlaying()[2].'<br> Tipo: <i>'.$this->nowPlaying()[0].'</i>', 'parse_mode' => 'html'])['id'];
+                $call->mId = yield $this->messages->sendMessage(['no_webpage' => true, 'peer' => $call->getOtherID(), 'message' => 'Stai ascoltando: <b>'.$this->nowPlaying()[1].'</b>  '.$this->nowPlaying()[2].'<br> Tipo: <i>'.$this->nowPlaying()[0].'</i> <br>Stazione: ', 'parse_mode' => 'html'])['id'];
                 $this->jsonmoseca = $this->nowPlaying('jsonclear');
             } catch (\Throwable $e) {
                 $this->logger($e);
@@ -252,7 +252,7 @@ class EventHandler extends \danog\MadelineProto\EventHandler
         try {
             if (!isset($this->my_users[$from_id]) || $message === '/start') {
                 $this->my_users[$from_id] = true;
-                yield $this->messages->sendMessage(['no_webpage'                    => true, 'peer' => $chat_id, 'message' => "Ciao! Sono la prima RDS webradio su Telegram! **Chiamami** oppure scrivimi **/call**! \n\nScopri cosa c'è in diretta adesso con **/nowplaying**! \n
+                yield $this->messages->sendMessage(['no_webpage'                    => true, 'peer' => $chat_id, 'message' => "Ciao! Sono la prima RDS webradio su Telegram! **Chiamami** oppure scrivimi **/call**! \n\nScopri cosa c'è in diretta adesso con **/nowplaying**! \n\n Scrivimi **/m2o** per passare alla stazione M2O!\n
                 Creato con amore da @Gabbo_xl usando @madelineproto.", 'parse_mode' => 'Markdown']);
             }
 
