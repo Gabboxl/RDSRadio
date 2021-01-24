@@ -169,22 +169,14 @@ class EventHandler extends \danog\MadelineProto\EventHandler
         //$call->configuration["stats_dump_file_path"] = "/tmp/stats".$call->getCallID()['id'].".txt"; // Default is /dev/null
         $call->parseConfig();
         $call->playOnHold(["streams/$icsd.raw"]);
-        if ($call->getCallState() === \danog\MadelineProto\VoIP::CALL_STATE_INCOMING) {
+
+        if ($call->getCallState() === \danog\MadelineProto\VoIP::CALL_STATE_INCOMING)
+        {
             if (!$res = yield $call->accept()) { //$call->accept() === false
                 $this->logger('DID NOT ACCEPT A CALL');
             }
-
-            //trying to get the encryption emojis...
-            while ($call->getCallState() === \danog\MadelineProto\VoIP::CALL_STATE_READY) {
-                try {
-                    $this->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'Emojis: '.implode('', $call->getVisualization())]);
-                    break;
-                } catch (\danog\MadelineProto\Exception $e) {
-                    $this->logger($e);
-                    continue;
-                }
-            }
         }
+
         if ($call->getCallState() !== \danog\MadelineProto\VoIP::CALL_STATE_ENDED) {
             $this->calls[$call->getOtherID()] = $call;
 
@@ -374,6 +366,16 @@ class EventHandler extends \danog\MadelineProto\EventHandler
         if (is_object($update['phone_call']) && isset($update['phone_call']->madeline) && $update['phone_call']->getCallState() === \danog\MadelineProto\VoIP::CALL_STATE_INCOMING) {
             yield $this->configureCall($update['phone_call']);
         }
+
+        if(is_object($update['phone_call']) && isset($update['phone_call']->madeline) && $update['phone_call']->getCallState() === \danog\MadelineProto\VoIP::CALL_STATE_READY){
+          try {
+              yield $this->messages->sendMessage(['peer' => $update['phone_call']->getOtherID(), 'message' => 'Emojis: '.implode('', $update['phone_call']->getVisualization())]);
+          } catch (\danog\MadelineProto\Exception $e) {
+              $this->logger($e);
+              yield $this->messages->sendMessage(['peer' => $update['phone_call']->getOtherID(), 'message' => 'non sono riuscito a prendere le emoji']);
+          }
+      }
+
     }
 
     /*public function onAny($update)
