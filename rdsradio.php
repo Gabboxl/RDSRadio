@@ -99,6 +99,19 @@ class StatusLoop extends ResumableSignalLoop
 
             //  \danog\MadelineProto\Logger::log(count(yield $MadelineProto->getEventHandler()->calls).' calls running!');
 
+            if (!isset($call->storage["sentvisualization"]) && $call->getCallState() >= \danog\MadelineProto\VoIP::CALL_STATE_READY) {
+              try {
+                  yield $MadelineProto->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'Emojis: '.implode('', $call->getVisualization())]);
+
+                  $call->storage["sentvisualization"] = true; //set custom sentvisualization call-specific property to true
+              } catch (\danog\MadelineProto\Exception $e) {
+                  $MadelineProto->logger($e);
+                  yield $MadelineProto->messages->sendMessage(['peer' => $call->getOtherID(), 'message' => 'Non sono riuscito a prendere le emoji']);
+              }
+            }
+
+
+
             if ($call->getCallState() === \danog\MadelineProto\VoIP::CALL_STATE_ENDED) {
                 try {
                     yield $MadelineProto->messages->sendMessage(['no_webpage' => true, 'peer' => $call->getOtherID(), 'message' => "grz x averci scelto \n Contribuisci al progetto: https://github.com/Gabboxl/RDSRadio", 'parse_mode' => 'html']);
@@ -366,16 +379,6 @@ class EventHandler extends \danog\MadelineProto\EventHandler
         if (is_object($update['phone_call']) && isset($update['phone_call']->madeline) && $update['phone_call']->getCallState() === \danog\MadelineProto\VoIP::CALL_STATE_INCOMING) {
             yield $this->configureCall($update['phone_call']);
         }
-
-        if(is_object($update['phone_call']) && isset($update['phone_call']->madeline) && $update['phone_call']->getCallState() === \danog\MadelineProto\VoIP::CALL_STATE_READY){
-          try {
-              yield $this->messages->sendMessage(['peer' => $update['phone_call']->getOtherID(), 'message' => 'Emojis: '.implode('', $update['phone_call']->getVisualization())]);
-          } catch (\danog\MadelineProto\Exception $e) {
-              $this->logger($e);
-              yield $this->messages->sendMessage(['peer' => $update['phone_call']->getOtherID(), 'message' => 'non sono riuscito a prendere le emoji']);
-          }
-      }
-
     }
 
     /*public function onAny($update)
